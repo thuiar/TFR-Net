@@ -15,18 +15,13 @@ In this framework, we support the following methods:
 | Baselines |[MISA](models/singleTask/MISA.py) |[MISA](https://github.com/declare-lab/MISA)|
 | Missing-Task  |[TFR-Net](models/missingTask/TFR_NET)|      [TFR-Net](https://github.com/Columbine21/TFR-Net)  |
 
-## Results
-
-> Detailed results are shown in [results/result-stat.md](results/result-stat.md)
-
 ## Usage
 
 
 - Clone this repo and install requirements.
 ```
-git clone https://github.com/thuiar/MMSA  
-cd MMSA
-pip install -r requirements.txt
+git clone https://github.com/Columbine21/TFR-Net.git
+cd TFR-Net
 ```
 
 ### Data Preprocessing
