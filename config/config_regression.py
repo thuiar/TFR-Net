@@ -177,60 +177,6 @@ class ConfigRegression():
                     'weight_gen_loss': (5, 2, 20),
                     # 'weight_sim_loss': 5,
                 },
-                'mosei':{
-                    # TODO ALIGNMENT Params.
-                    # dropout
-                    'text_dropout': 0.3, # textual Embedding Dropout
-                    # temporal convolution kernel size
-                    'conv1d_kernel_size_l': 5, 
-                    'conv1d_kernel_size_a': 1,
-                    'conv1d_kernel_size_v': 3,
-                    # Transformer dropours
-                    'attn_dropout': 0.4, # crossmodal attention block dropout
-                    'attn_dropout_a': 0.1,
-                    'attn_dropout_v': 0.0,
-                    'relu_dropout': 0.2,
-                    'embed_dropout': 0.2,
-                    'res_dropout': 0.2,
-                    #  transformers hidden unit size(d) &&  transformers hidden unit size(d)
-                    'dst_feature_dim_nheads': (30, 6), 
-                    # number of layers(Blocks) in the Crossmodal Networks
-                    'nlevels': 3,
-                    # TODO GENERATOR Params
-                    'trans_hid_t': 40,
-                    'trans_hid_t_drop': 0.0,
-                    'trans_hid_a': 80,
-                    'trans_hid_a_drop': 0.1,
-                    'trans_hid_v': 48,
-                    'trans_hid_v_drop': 0.3,
-                    # 'generator_in': (40, 40, 40),
-                    # TODO FUSION Params
-                    'fusion_t_in': 90,
-                    'fusion_a_in': 90,
-                    'fusion_v_in': 90,
-                    'fusion_t_hid': 36,
-                    'fusion_a_hid': 20,
-                    'fusion_v_hid': 48,
-                    'fusion_gru_layers': 3, # USED FOR GRU / GATE FUSION.
-                    'use_linear': True, # USED FOR GRU FUSION .
-                    'fusion_drop': 0.2, #  USED FOR GRU / GATE FUSION.(before clf)
-                    'cls_hidden_dim': 128,
-                    'cls_dropout': 0.2,
-                    
-                    # gradient clip value (default: 0.8)
-                    # when grad_clip == -1.0, means not use that
-                    'grad_clip': 0.8, 
-                    # the batch_size of each epoch is updata_epochs * batch_size
-                    'batch_size': 32,
-                    'learning_rate_bert': 1e-05,
-                    'learning_rate_other': 0.002,
-                    # when to decay learning rate (default: 20)
-                    'patience': 5,
-                    'weight_decay_bert': 0.0001,
-                    'weight_decay_other': 0.001,
-                    'weight_gen_loss': (1, 0.1, 0.2),
-                    # 'weight_sim_loss': 5,
-                },
                 'sims':{
                     # TODO ALIGNMENT Params.
                     # dropout
@@ -332,35 +278,6 @@ class ConfigRegression():
                     # when to decay learning rate (default: 20)
                     'patience': 20, 
                     'weight_decay': 0.0,
-                },
-                'mosei':{
-                    'attn_dropout_a': 0.0,
-                    'attn_dropout_v': 0.0,
-                    'relu_dropout': 0.0,
-                    'embed_dropout': 0.0,
-                    'res_dropout': 0.0,
-                    #  transformers hidden unit size(d) &&  transformers hidden unit size(d)
-                    'dst_feature_dim_nheads': (30, 6), 
-                    # the batch_size of each epoch is updata_epochs * batch_size
-                    'batch_size': 4,
-                    'learning_rate': 5e-4,
-                    # number of layers(Blocks) in the Crossmodal Networks
-                    'nlevels': 4, 
-                    # temporal convolution kernel size
-                    'conv1d_kernel_size_l': 5, 
-                    'conv1d_kernel_size_a': 1,
-                    'conv1d_kernel_size_v': 3,
-                    # dropout
-                    'text_dropout': 0.3, # textual Embedding Dropout
-                    'attn_dropout': 0.4, # crossmodal attention block dropout
-                    'output_dropout': 0.5,
-                    # gradient clip value (default: 0.8)
-                    # when grad_clip == -1.0, means not use that
-                    'grad_clip': 0.6, 
-                    # when to decay learning rate (default: 20)
-                    'patience': 20, 
-                    'weight_decay': 0.001,
- 
                 },
                 'sims':{
                     'attn_dropout_a': 0.1,
@@ -479,14 +396,6 @@ class ConfigRegression():
                     'dropouts': (0.2, 0.2, 0.2, 0.2),
                     'batch_size': 32,
                     'learning_rate': 5e-4,
-                },
-                'mosei':{
-                    'hidden_dims': (128, 16, 128),
-                    'text_out': 64,
-                    'post_fusion_dim': 32,
-                    'dropouts': (0.3, 0.3, 0.3, 0.5),
-                    'batch_size': 64,
-                    'learning_rate': 1e-3,
                 },
                 'sims':{
                     'hidden_dims': (128, 32, 128),
