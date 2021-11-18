@@ -1,0 +1,15 @@
+.vscode
+**/__pycache__
+**.pth
+**.pkl
+**.npy
+.ipynb_checkpoints
+**.npz
+**jupyter
+results/models
+results/results
+pretrained_model
+logs/
+assets/
+**.out
+**.sh
