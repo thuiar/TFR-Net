@@ -65,11 +65,6 @@ def run(args):
                 # print(p)
         return answer
     logger.info(f'The model has {count_parameters(model)} trainable parameters')
-    # using multiple gpus
-    # if using_cuda and len(args.gpu_ids) > 1:
-    #     model = torch.nn.DataParallel(model,
-    #                                   device_ids=args.gpu_ids,
-    #                                   output_device=args.gpu_ids[0])
     atio = ATIO().getTrain(args)
     # do train
     atio.do_train(model, dataloader)
@@ -153,16 +148,12 @@ def set_log(args):
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--need_task_scheduling', type=bool, default=False,
-                        help='use the task scheduling module.')
-    parser.add_argument('--is_tune', type=bool, default=False,
-                        help='tune parameters ?')
     parser.add_argument('--train_mode', type=str, default="regression",
-                        help='regression / classification')
+                        help='regression')
     parser.add_argument('--modelName', type=str, default='tfr_net',
-                        help='support lf_dnn/ef_lstm/tfn/lmf/mfn/graph_mfn/mult/misa/mlf_dnn/mtfn/mlmf/self_mm/tfr_net')
+                        help='support tfn/mult/misa/tfr_net')
     parser.add_argument('--datasetName', type=str, default='mosi',
-                        help='support mosi/mosei/sims')
+                        help='support mosi/sims')
     parser.add_argument('--num_workers', type=int, default=0,
                         help='num workers of loading data')
     parser.add_argument('--model_save_dir', type=str, default='results/models',
@@ -171,7 +162,7 @@ def parse_args():
                         help='path to save results.')
     parser.add_argument('--gpu_ids', type=list, default=[],
                         help='indicates the gpus will be used. If none, the most-free gpu will be used!')
-    parser.add_argument('--missing', type=float, default=0.4)
+    parser.add_argument('--missing', type=float, default=0.0)
     return parser.parse_args()
 
 if __name__ == '__main__':
