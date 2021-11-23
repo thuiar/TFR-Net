@@ -23,7 +23,6 @@ class TFR_NET():
 
     def do_train(self, model, dataloader):
         if self.args.use_bert_finetune:
-            # OPTIMIZER: finetune Bert Parameters.
             bert_no_decay = ['bias', 'LayerNorm.bias', 'LayerNorm.weight']
             bert_params = list(model.Model.text_model.named_parameters())
 
@@ -41,13 +40,12 @@ class TFR_NET():
             optimizer = optim.Adam(model.parameters(), lr=self.args.learning_rate_other, weight_decay=self.args.weight_decay_other)
 
         scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.1, verbose=True, patience=self.args.patience)
-        # initilize results
+
         epochs, best_epoch = 0, 0
         min_or_max = 'min' if self.args.KeyEval in ['Loss'] else 'max'
         best_valid = 1e8 if min_or_max == 'min' else 0
         while True:  
             epochs += 1
-            # train
             y_pred, y_true = [], []
             losses = []
             model.train()
@@ -76,21 +74,18 @@ class TFR_NET():
                         labels = labels.view(-1).long()
                     else:
                         labels = labels.view(-1, 1)
-                    # forward
                     prediction, gen_loss = model((text, text_m, text_missing_mask), (audio, audio_m, audio_mask, audio_missing_mask), (vision, vision_m, vision_mask, vision_missing_mask))
-                    # compute loss
                     pred_loss = self.criterion(prediction, labels)
                     if epochs > 1:
                         loss = pred_loss + gen_loss
                     else:
                         loss = pred_loss
-                    # backward
                     loss.backward()
+                    
                     if self.args.grad_clip != -1.0:
                         nn.utils.clip_grad_value_([param for param in model.parameters() if param.requires_grad], self.args.grad_clip)
-                    # update
+
                     optimizer.step()
-                    # store results
                     train_loss += loss.item()
                     predict_loss += pred_loss.item()
                     generate_loss += gen_loss.item()
@@ -101,7 +96,6 @@ class TFR_NET():
                         optimizer.step()
                         left_epochs = self.args.update_epochs
                 if not left_epochs:
-                    # update
                     optimizer.step()
             train_loss = train_loss / len(dataloader['train'])
             predict_loss = predict_loss / len(dataloader['train'])
@@ -111,19 +105,17 @@ class TFR_NET():
             train_results = self.metrics(pred, true)
             logger.info("TRAIN-(%s) (%d/%d/%d)>> loss: %.4f(pred: %.4f; gen: %.4f) %s" % (self.args.modelName, \
                         epochs - best_epoch, epochs, self.args.cur_time, train_loss, predict_loss, generate_loss, dict_to_str(train_results)))
-            # validation
+            
             val_results = self.do_test(model, dataloader['valid'], mode="VAL")
             cur_valid = val_results[self.args.KeyEval]
             scheduler.step(val_results['Loss'])
-            # save best model
+
             isBetter = cur_valid <= (best_valid - 1e-6) if min_or_max == 'min' else cur_valid >= (best_valid + 1e-6)
-            # save best model
             if isBetter:
                 best_valid, best_epoch = cur_valid, epochs
-                # save model
                 torch.save(model.cpu().state_dict(), self.args.model_save_path)
                 model.to(self.args.device)
-            # early stop
+                
             if epochs - best_epoch >= self.args.early_stop:
                 return
 
@@ -153,13 +145,13 @@ class TFR_NET():
                         labels = labels.view(-1).long()
                     else:
                         labels = labels.view(-1, 1)
-                    # forward
+
                     outputs, gen_loss = model((text, text_m, text_missing_mask), (audio, audio_m, audio_mask, audio_missing_mask), (vision, vision_m, vision_mask, vision_missing_mask))
-                    # compute loss
+
                     pred_loss = self.criterion(outputs, labels)
                     total_loss = pred_loss + gen_loss
                     loss = pred_loss
-                    # diff loss calculate.
+
                     eval_loss += loss.item()
                     predict_loss += pred_loss.item()
                     generate_loss += gen_loss.item()
