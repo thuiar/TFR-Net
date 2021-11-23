@@ -16,12 +16,10 @@ from models.subNets.transformers_encoder.transformer import TransformerEncoder
 class CM_ATTN(nn.Module):
     def __init__(self, args):
         super(CM_ATTN, self).__init__()
-        # Mult Model Initialization.
         self.seq_lens = args.seq_lens
         dst_feature_dims, nheads = args.dst_feature_dim_nheads
         self.orig_d_l, self.orig_d_a, self.orig_d_v = args.feature_dims
         self.d_l = self.d_a = self.d_v = dst_feature_dims
-        # WRITE BACK
         args.generator_in = (dst_feature_dims*2, dst_feature_dims*2, dst_feature_dims*2)
 
         self.num_heads = nheads
@@ -38,7 +36,6 @@ class CM_ATTN(nn.Module):
         self.attn_mask = args.attn_mask
 
         # 1. Temporal convolutional layers
-        # TODO: NOTICE HERE TO KEEP AUDIO DIM PAD 2.
         self.proj_l = nn.Conv1d(self.orig_d_l, self.d_l, kernel_size=args.conv1d_kernel_size_l, padding=(args.conv1d_kernel_size_l-1)//2, bias=False)
         self.proj_a = nn.Conv1d(self.orig_d_a, self.d_a, kernel_size=args.conv1d_kernel_size_a, padding=(args.conv1d_kernel_size_a-1)//2, bias=False)
         self.proj_v = nn.Conv1d(self.orig_d_v, self.d_v, kernel_size=args.conv1d_kernel_size_v, padding=(args.conv1d_kernel_size_v-1)//2, bias=False)
@@ -100,29 +97,24 @@ class CM_ATTN(nn.Module):
         x_l = F.dropout(text.transpose(1, 2), p=self.text_dropout, training=self.training)
         x_a = audio.transpose(1, 2)
         x_v = vision.transpose(1, 2)
-        # print(x_a.shape)
-        # Project the textual/visual/audio features
+
         proj_x_l = x_l if self.orig_d_l == self.d_l else self.proj_l(x_l)
         proj_x_a = x_a if self.orig_d_a == self.d_a else self.proj_a(x_a)
         proj_x_v = x_v if self.orig_d_v == self.d_v else self.proj_v(x_v)
-        # print(proj_x_l.shape, proj_x_a.shape, proj_x_v.shape)
+        
         proj_x_a = proj_x_a.permute(2, 0, 1)
         proj_x_v = proj_x_v.permute(2, 0, 1)
         proj_x_l = proj_x_l.permute(2, 0, 1)
-        # print(proj_x_l.shape, proj_x_a.shape, proj_x_v.shape)
-        # exit()
         # (V,A) --> L
         h_l = self.trans_l_mem(proj_x_l)
-        h_l_with_as = self.trans_l_with_a(proj_x_l, proj_x_a, proj_x_a)    # Dimension (L, N, d_l)
-        h_l_with_vs = self.trans_l_with_v(proj_x_l, proj_x_v, proj_x_v)    # Dimension (L, N, d_l)
+        h_l_with_as = self.trans_l_with_a(proj_x_l, proj_x_a, proj_x_a)
+        h_l_with_vs = self.trans_l_with_v(proj_x_l, proj_x_v, proj_x_v)
         h_ls = torch.cat([h_l, h_l_with_as, h_l_with_vs], dim=2)
         h_ls_n = self.trans_l_final(h_ls.permute(1,2,0)).permute(0,2,1)
-
         # (L,V) --> A
         h_a = self.trans_a_mem(proj_x_a)
         h_a_with_ls = self.trans_a_with_l(proj_x_a, proj_x_l, proj_x_l)
         h_a_with_vs = self.trans_a_with_v(proj_x_a, proj_x_v, proj_x_v)
-        # print(h_a_with_ls.shape, h_a_with_vs.shape)
         h_as = torch.cat([h_a, h_a_with_ls, h_a_with_vs], dim=2)
         h_as_n = self.trans_a_final(h_as.permute(1,2,0)).permute(0,2,1)
         # (L,A) --> V

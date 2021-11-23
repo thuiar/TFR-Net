@@ -71,89 +71,6 @@ class C_GATE(nn.Module):
         utterance_rep = self.dropout_in(utterance_rep) # [utter_num, utterance_dim]
         return utterance_rep
 
-class MAX_F(nn.Module):
-    def __init__(self, args):
-        super(MAX_F, self).__init__()
-
-        self.fusion_trans_t = nn.Linear(args.fusion_t_in, args.fusion_t_hid)
-        self.fusion_trans_a = nn.Linear(args.fusion_a_in, args.fusion_a_hid)
-        self.fusion_trans_v = nn.Linear(args.fusion_v_in, args.fusion_v_hid)
-
-        self.fusion_dropout = nn.Dropout(args.fusion_drop)
-
-        # Classifier
-        self.classifier = nn.Sequential()
-        self.classifier.add_module('linear_trans_norm', nn.BatchNorm1d(args.fusion_t_hid + args.fusion_a_hid + args.fusion_v_hid))
-        self.classifier.add_module('linear_trans_hidden', nn.Linear(args.fusion_t_hid + args.fusion_a_hid + args.fusion_v_hid, args.cls_hidden_dim))
-        self.classifier.add_module('linear_trans_activation', nn.LeakyReLU())
-        self.classifier.add_module('linear_trans_final', nn.Linear(args.cls_hidden_dim, 1))
-
-    def forward(self, text_x, audio_x, vision_x):
-        text_x, text_mask = text_x
-        audio_x, audio_mask = audio_x
-        vision_x, vision_mask = vision_x
-        # print(text_x.shape, audio_x.shape, vision_x.shape)
-        text_rep = torch.max(torch.tanh(self.fusion_trans_t(text_x)), dim=1)[0]
-        audio_rep = torch.max(torch.tanh(self.fusion_trans_a(audio_x)), dim=1)[0]
-        vision_rep = torch.max(torch.tanh(self.fusion_trans_v(vision_x)), dim=1)[0]
-        # print(text_rep.shape, audio_rep.shape, vision_rep.shape)
-
-        utterance_rep = torch.cat((text_rep, audio_rep, vision_rep), dim=1)
-        utterance_rep = self.fusion_dropout(utterance_rep)
-
-        return self.classifier(utterance_rep)
-
-class GRU_F(nn.Module):
-    def __init__(self, args):
-        super(GRU_F, self).__init__()
-
-        self.args = args
-        self.text_gru = GRUencoder(args.fusion_t_in, args.fusion_t_hid, num_layers=args.fusion_gru_layers)
-        self.audio_gru = GRUencoder(args.fusion_a_in, args.fusion_a_hid, num_layers=args.fusion_gru_layers)
-        self.vision_gru = GRUencoder(args.fusion_v_in, args.fusion_v_hid, num_layers=args.fusion_gru_layers)
-        if args.use_linear:
-            self.fusion_trans_t = nn.Linear(args.fusion_t_hid * 2, args.fusion_t_hid * 2)
-            self.fusion_trans_a = nn.Linear(args.fusion_a_hid * 2, args.fusion_a_hid * 2)
-            self.fusion_trans_v = nn.Linear(args.fusion_v_hid * 2, args.fusion_v_hid * 2)
-
-        self.fusion_dropout = nn.Dropout(args.fusion_drop)
-
-        # Classifier
-        self.classifier = nn.Sequential()
-        self.classifier.add_module('linear_trans_norm', nn.BatchNorm1d((args.fusion_t_hid + args.fusion_a_hid + args.fusion_v_hid)*2))
-        self.classifier.add_module('linear_trans_hidden', nn.Linear((args.fusion_t_hid + args.fusion_a_hid + args.fusion_v_hid) * 2, args.cls_hidden_dim))
-        self.classifier.add_module('linear_trans_activation', nn.LeakyReLU())
-        self.classifier.add_module('linear_trans_final', nn.Linear(args.cls_hidden_dim, 1))
-
-    def forward(self, text_x, audio_x, vision_x):
-        text_x, text_mask = text_x
-        audio_x, audio_mask = audio_x
-        vision_x, vision_mask = vision_x
-        add_zero = torch.zeros(size=[text_x.shape[0], 1], requires_grad=False).type_as(text_mask).to(text_mask.device)
-        text_mask_z = torch.cat((text_mask, add_zero), dim=1)
-        audio_mask_z = torch.cat((audio_mask, add_zero), dim=1)
-        vision_mask_z = torch.cat((vision_mask, add_zero), dim=1)
-        text_len = torch.argmin(text_mask_z, dim=1)
-        audio_len = torch.argmin(audio_mask_z, dim=1)
-        vision_len = torch.argmin(vision_mask_z, dim=1)
-        
-        text_x = self.text_gru(text_x, text_len)
-        audio_x = self.audio_gru(audio_x, audio_len)
-        vision_x = self.vision_gru(vision_x, vision_len)
-        if self.args.use_linear:
-            text_rep = torch.max(torch.tanh(self.fusion_trans_t(text_x)), dim=1)[0]
-            audio_rep = torch.max(torch.tanh(self.fusion_trans_a(audio_x)), dim=1)[0]
-            vision_rep = torch.max(torch.tanh(self.fusion_trans_v(vision_x)), dim=1)[0]
-        else:
-            text_rep = torch.max(torch.tanh(text_x), dim=1)[0]
-            audio_rep = torch.max(torch.tanh(audio_x), dim=1)[0]
-            vision_rep = torch.max(torch.tanh(vision_x), dim=1)[0]
-
-        utterance_rep = torch.cat((text_rep, audio_rep, vision_rep), dim=1)
-        utterance_rep = self.fusion_dropout(utterance_rep)
-
-        return self.classifier(utterance_rep)
-
 class GATE_F(nn.Module):
     def __init__(self, args):
         super(GATE_F, self).__init__()
@@ -183,10 +100,7 @@ class GATE_F(nn.Module):
         return self.classifier(utterance_rep)
 
 
-
 MODULE_MAP = {
-    'max': MAX_F,
-    'gru': GRU_F,
     'c_gate': GATE_F,
 }
 

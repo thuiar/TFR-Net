@@ -119,7 +119,6 @@ class ConfigRegression():
                 'fusionModule': 'c_gate',
                 'recloss_type': 'combine',
                 'without_generator': False,
-                'use_gen_fusion': False,
 
                 'early_stop': 6,
                 'use_bert': True,
