@@ -12,4 +12,3 @@ pretrained_model
 logs/
 assets/
 **.out
-**.sh

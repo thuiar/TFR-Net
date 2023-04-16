@@ -32,8 +32,8 @@ cd TFR-Net
 > download from [CMU-MultimodalSDK](http://immortal.multicomp.cs.cmu.edu/raw_datasets/processed_data/)
 
 - SIMS
-> download from [Baidu Yun Disk](https://pan.baidu.com/s/1CmLdhYSVnNFAyA0DkR6tdA) [code: `ozo2`] or [Google Drive](https://drive.google.com/file/d/1z6snOkOoy100F33lzmHHB_DUGJ47DaQo/view?usp=sharing)  
-> **Notes:** Please download new features `CH_SIMS_unaligned_39.pkl` from [Baidu Yun Disk](https://pan.baidu.com/s/177hnei8ySH6IpGGeF9W8fw) [code: `g63s`] or [Google Drive](https://drive.google.com/file/d/1Zux66GJCuzsVnHgRC-DKIz4ua9YwZC3e/view?usp=sharing), which is compatible with our new code structure. The `md5 code` is `a5b2ed3844200c7fb3b8ddc750b77feb`.
+> download from [Baidu Yun Disk](https://pan.baidu.com/share/init?surl=XmobKHUqnXciAm7hfnj2gg) [code: `mfet`] or [Google Drive](https://drive.google.com/drive/folders/1A2S4pqCHryGmiqnNSPLv7rEg63WvjCSk)  
+> **Notes:** Please download new features `unaligned_39.pkl` from [Baidu Yun Disk](https://pan.baidu.com/share/init?surl=XmobKHUqnXciAm7hfnj2gg) [code: `mfet`] or [Google Drive](https://drive.google.com/drive/folders/1A2S4pqCHryGmiqnNSPLv7rEg63WvjCSk), which is compatible with our new code structure. The `md5 code` is `a5b2ed3844200c7fb3b8ddc750b77feb`.
 
 1. Download [Bert-Base, Chinese](https://storage.googleapis.com/bert_models/2018_11_03/chinese_L-12_H-768_A-12.zip) from [Google-Bert](https://github.com/google-research/bert).  
 
@@ -43,7 +43,7 @@ cd TFR-Net
 
 4. Organize features and save them as pickle files with the following structure.
 
-> **Notes:** `CH_SIMS_unaligned_39.pkl` is compatible with the following structure
+> **Notes:** `unaligned_39.pkl` is compatible with the following structure
 
 ###### Dataset Feature Structure
 
